@@ -1,9 +1,7 @@
-// components/TodoList.js
-
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TodoList() {
   const [todos, setTodos] = useState([]);
@@ -25,13 +23,15 @@ export default function TodoList() {
   };
 
   const deleteTodo = (id) => {
-    setTodos(todos.filter(todo => todo.id !== id));
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
   const toggleTodo = (id) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   };
 
   const startEditing = (id, text) => {
@@ -40,15 +40,22 @@ export default function TodoList() {
   };
 
   const saveEdit = (id) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, text: editText } : todo
-    ));
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, text: editText } : todo
+      )
+    );
     setEditingId(null);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
+    <div className="max-w-3xl w-full mx-auto px-4 py-8 space-y-6">
+      <h1 className="text-center text-4xl font-bold text-purple-400 mb-6">
+        Todo List
+      </h1>
+
+      {/* Input and Add Button */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
           value={newTodo}
@@ -65,62 +72,71 @@ export default function TodoList() {
         </button>
       </div>
 
-      <div className="space-y-2">
-        {todos.map((todo) => (
-          <motion.div
-            key={todo.id}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex items-center p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-colors duration-200"
-          >
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => toggleTodo(todo.id)}
-              className="w-5 h-5 mr-3 accent-purple-500"
-            />
-            {editingId === todo.id ? (
-              <input
-                type="text"
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                className="flex-1 bg-transparent text-white mr-2 focus:outline-none"
-              />
-            ) : (
-              <span
-                className={`flex-1 text-white ${
-                  todo.completed ? 'line-through opacity-70' : ''
-                }`}
-              >
-                {todo.text}
-              </span>
-            )}
-            <div className="flex gap-2 ml-2">
-              {editingId === todo.id ? (
+      {/* Todo List */}
+      <div className="space-y-4">
+        <AnimatePresence>
+          {todos.map((todo) => (
+            <motion.div
+              key={todo.id}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col sm:flex-row items-center p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-colors duration-200"
+            >
+              {/* Checkbox + Text */}
+              <div className="flex items-center w-full sm:w-auto flex-1 mb-3 sm:mb-0">
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => toggleTodo(todo.id)}
+                  className="w-5 h-5 mr-3 accent-purple-500"
+                />
+
+                {editingId === todo.id ? (
+                  <input
+                    type="text"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="flex-1 bg-transparent text-white focus:outline-none"
+                  />
+                ) : (
+                  <span
+                    className={`flex-1 text-white ${
+                      todo.completed ? 'line-through opacity-70' : ''
+                    }`}
+                  >
+                    {todo.text}
+                  </span>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
+                {editingId === todo.id ? (
+                  <button
+                    onClick={() => saveEdit(todo.id)}
+                    className="px-3 py-2 text-green-400 hover:bg-white/10 rounded-lg"
+                  >
+                    Save
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => startEditing(todo.id, todo.text)}
+                    className="px-3 py-2 text-blue-400 hover:bg-white/10 rounded-lg"
+                  >
+                    Edit
+                  </button>
+                )}
                 <button
-                  onClick={() => saveEdit(todo.id)}
-                  className="p-2 text-green-400 hover:bg-white/10 rounded-lg"
+                  onClick={() => deleteTodo(todo.id)}
+                  className="px-3 py-2 text-red-400 hover:bg-white/10 rounded-lg"
                 >
-                  Save
+                  Delete
                 </button>
-              ) : (
-                <button
-                  onClick={() => startEditing(todo.id, todo.text)}
-                  className="p-2 text-blue-400 hover:bg-white/10 rounded-lg"
-                >
-                  Edit
-                </button>
-              )}
-              <button
-                onClick={() => deleteTodo(todo.id)}
-                className="p-2 text-red-400 hover:bg-white/10 rounded-lg"
-              >
-                Delete
-              </button>
-            </div>
-          </motion.div>
-        ))}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );
